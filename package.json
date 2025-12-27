@@ -15,7 +15,8 @@
     "react-router-dom": "^7.11.0",
     "zustand": "^5.0.9",
     "jspdf": "2.5.1",
-    "jspdf-autotable": "3.8.1"
+    "jspdf-autotable": "3.8.1",
+    "canvg": "^3.0.10"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
