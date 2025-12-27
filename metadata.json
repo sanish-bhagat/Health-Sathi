@@ -1,0 +1,8 @@
+{
+  "name": "Copy of Copy of Health Sathi Host8",
+  "description": "A multimodal AI health assistant connecting chronic disease patients with doctor verification.",
+  "requestFramePermissions": [
+    "microphone",
+    "camera"
+  ]
+}
