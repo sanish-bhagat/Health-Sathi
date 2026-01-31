@@ -54,26 +54,18 @@ export const DoctorDashboard: React.FC = () => {
     : null;
 
   const handleApprove = async (id: string) => {
-    const doctorName = selectedReport?.targetDoctorName || currentPatientName;
-    await updateReportStatus(id, ReportStatus.REVIEWED, `Reviewed by ${doctorName}`);
+    await updateReportStatus(id, ReportStatus.REVIEWED, "Approved by Dr. Singh.");
   };
 
   const handleEscalate = async (id: string) => {
-    const doctorName = selectedReport?.targetDoctorName || currentPatientName;
-    await updateReportStatus(id, ReportStatus.CRITICAL, `Escalated by ${doctorName} for Tele-consult.`);
+    await updateReportStatus(id, ReportStatus.CRITICAL, "Escalated for Tele-consult.");
   };
 
   const handleStartModify = () => {
     if (selectedReport) {
       if (!selectedReportId) setSelectedReportId(selectedReport.id);
       // Pre-fill with existing notes OR AI guidance to allow modification of the draft
-      const prefix = `Reviewed by ${selectedReport.targetDoctorName || currentPatientName}: `;
-      let initialText = selectedReport.doctorNotes || selectedReport.aiAnalysis?.english_guidance || "";
-      
-      if (!initialText.startsWith("Reviewed by")) {
-        initialText = prefix + initialText;
-      }
-      
+      const initialText = selectedReport.doctorNotes || selectedReport.aiAnalysis?.english_guidance || "";
       setEditNote(initialText);
       setIsEditing(true);
     }
