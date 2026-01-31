@@ -153,18 +153,61 @@ export const PatientDashboard: React.FC = () => {
     setIsEditingProfile(false);
   };
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const compressImage = (base64Str: string, maxWidth = 1200, maxHeight = 1200, quality = 0.7): Promise<string> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = base64Str;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height *= maxWidth / width;
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width *= maxHeight / height;
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        ctx?.drawImage(img, 0, 0, width, height);
+        // Compressed to jpeg for best size reduction
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+    });
+  };
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      // 10MB Limit Validation for initial upload
+      const maxSize = 10 * 1024 * 1024; 
+      if (file.size > maxSize) {
+        alert("File is too large. Maximum size is 10MB.");
+        if (fileInputRef.current) fileInputRef.current.value = '';
+        return;
+      }
+
       const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64String = reader.result as string;
-        const content = base64String.split(',')[1];
+      reader.onloadend = async () => {
+        let base64String = reader.result as string;
+        
         if (file.type.includes('image')) {
+          // Compress images to stay under Firestore 1MB limit
+          base64String = await compressImage(base64String);
+          const content = base64String.split(',')[1];
           setSelectedImage(content);
-          setImgMime(file.type);
+          setImgMime('image/jpeg'); // We compressed to jpeg
           setSelectedPdf(null); 
         } else if (file.type.includes('pdf')) {
+          const content = base64String.split(',')[1];
           setSelectedPdf(content);
           setPdfMime(file.type);
           setSelectedImage(null);
@@ -234,21 +277,23 @@ export const PatientDashboard: React.FC = () => {
       const status = analysis.is_critical ? ReportStatus.CRITICAL : ReportStatus.PENDING;
       const reportId = Date.now().toString();
 
-      let imageStorageUrl, pdfStorageUrl, audioStorageUrl;
+      let imageStorageUrl: string | null = null;
+      let pdfStorageUrl: string | null = null;
+      let audioStorageUrl: string | null = null;
 
       if (selectedImage) {
-        const blob = base64ToBlob(selectedImage, imgMime);
-        imageStorageUrl = await uploadFileToStorage(blob);
+        const fullImageData = `data:${imgMime};base64,${selectedImage}`;
+        imageStorageUrl = await uploadFileToStorage(fullImageData, `img_${reportId}`);
       }
       
       if (selectedPdf) {
-        const blob = base64ToBlob(selectedPdf, pdfMime);
-        pdfStorageUrl = await uploadFileToStorage(blob);
+        const fullPdfData = `data:${pdfMime};base64,${selectedPdf}`;
+        pdfStorageUrl = await uploadFileToStorage(fullPdfData, `doc_${reportId}`);
       }
 
       if (recordedAudio) {
-        const blob = base64ToBlob(recordedAudio, 'audio/wav');
-        audioStorageUrl = await uploadFileToStorage(blob);
+        const fullAudioData = `data:audio/wav;base64,${recordedAudio}`;
+        audioStorageUrl = await uploadFileToStorage(fullAudioData, `audio_${reportId}`);
       }
 
       const selectedDoc = availableDoctors.find(d => d.uid === selectedDoctorId);

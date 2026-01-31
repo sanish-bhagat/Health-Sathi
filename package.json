@@ -1,5 +1,5 @@
 {
-  "name": "copy-of-copy-of-health-sathi-host8",
+  "name": "health-sathi-host-main",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -9,14 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "react-dom": "^19.2.3",
     "@google/genai": "^1.34.0",
-    "react": "^19.2.3",
-    "react-router-dom": "^7.11.0",
-    "zustand": "^5.0.9",
+    "firebase": "^12.8.0",
     "jspdf": "2.5.1",
     "jspdf-autotable": "3.8.1",
-    "canvg": "^3.0.10"
+    "react": "^19.2.3",
+    "react-dom": "^19.2.3",
+    "react-router-dom": "^7.11.0",
+    "zustand": "^5.0.9"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

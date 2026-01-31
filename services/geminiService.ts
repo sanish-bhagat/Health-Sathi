@@ -3,7 +3,7 @@ import { GoogleGenAI, Type, Modality } from "@google/genai";
 import { MASTER_SYSTEM_PROMPT } from "../constants";
 import { AIGuidance } from "../types";
 
-const apiKey = process.env.API_KEY || '';
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY || '';
 
 // Initialize client
 const ai = new GoogleGenAI({ apiKey });

@@ -10,7 +10,7 @@ type AuthStage = 'ROLE_SELECTION' | 'FORM';
 
 export const AuthPage = () => {
   const navigate = useNavigate();
-  const { setAuth } = useAppStore();
+  const { setAuth, loadReports } = useAppStore();
   const [stage, setStage] = useState<AuthStage>('ROLE_SELECTION');
   const [isRegister, setIsRegister] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.PATIENT);
@@ -43,6 +43,9 @@ export const AuthPage = () => {
         }
         setAuth(res.role, res.name || email, res.user.uid, res.user);
       }
+      
+      // Load reports immediately after setting auth to ensure data is ready
+      await loadReports();
     } catch (err: any) {
       setError(err.message || 'Authentication failed');
     } finally {
